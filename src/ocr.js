@@ -34,10 +34,8 @@
     const { data } = await worker.recognize(base64);
     console.log(data);
     if (data.text?.trim?.() === "" || data.confidence < 60) {
-      console.warn("No text was detected");
       document.getElementById("error").style.display = "block";
       document.getElementById("progress").style.display = "none";
-
       setTimeout(() => {
         document.getElementById("error").style.display = "none";
         document.getElementById("progress").style.display = "block";

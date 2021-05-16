@@ -43,7 +43,7 @@
       position: fixed;
       z-index: 999999;
     `;
-    attachDrawEvents(canvas);
+    initCanvas(canvas);
     document.body.appendChild(canvas);
   }
 
@@ -62,13 +62,27 @@
     );
   }
 
-  function attachDrawEvents(canvas) {
+  function initCanvas(canvas) {
     var ctx = canvas.getContext("2d");
     let mousedown = false;
     let clientFromX;
     let clientFromY;
     let fromX;
     let fromY;
+    chrome.storage.sync.get(
+      {
+        hotkey: "shift+a",
+      },
+      function ({ hotkey }) {
+        ctx.font = "30px Helvetica";
+        ctx.fillText("Select Text to Translate", canvas.width - 400, 50);
+        ctx.font = "20px Helvetica";
+        ctx.fillStyle = "black";
+        ctx.fillText(`(${hotkey})`, canvas.width - 400, 80);
+        ctx.fillStyle = "rgba(236, 240, 241,0.5)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
+    );
 
     function mouseDown(e) {
       e.stopPropagation();
@@ -97,7 +111,6 @@
       canvas.removeEventListener("mousedown", mouseDown);
       canvas.removeEventListener("mouseup", mouseUp);
       canvas.removeEventListener("mousemove", mouseMove);
-
       canvas.parentNode.removeChild(canvas);
       console.info("removed canvas");
     }
@@ -105,15 +118,11 @@
     function mouseMove(e) {
       e.stopPropagation();
       e.preventDefault();
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
       if (!mousedown) return;
       ctx.beginPath();
       var width = e.clientX - clientFromX;
       var height = e.clientY - clientFromY;
-      ctx.rect(clientFromX, clientFromY, width, height);
-      ctx.strokeStyle = "darkblue";
-      ctx.lineWidth = 1;
-      ctx.stroke();
+      ctx.clearRect(clientFromX, clientFromY, width, height);
     }
 
     canvas.addEventListener("mousedown", mouseDown);
