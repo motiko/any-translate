@@ -1,15 +1,16 @@
 {
   let iframe;
-  addCanvas();
+  const extUrl = chrome.runtime.getURL("");
+  const extOrigin = extUrl.substring(0, extUrl.length - 1);
+  startGrab();
   insertIframe();
   attachEvents();
 
-  const extUrl = chrome.runtime.getURL("");
-  const extOrigin = extUrl.substring(0, extUrl.length - 1);
   function attachEvents() {
     window.addEventListener("message", (e) => {
-      console.info("Detected text:", e.data.text);
       if (!extUrl.match(e.orign)) return;
+      console.info("Detected text:", e.data.text);
+      iframe.style.display = "none";
       window.open(
         `https://translate.google.com/?hl=en#auto/en/${encodeURIComponent(
           e.data.text
@@ -18,15 +19,12 @@
         "height=400,width=776,location=0,menubar=0,scrollbars=1,toolbar=0"
       );
     });
-    document.addEventListener("keyup", (e) => {
-      const key = e.which || e.keyCode;
-      if (e.shiftKey && e.code == "KeyT") {
-        addCanvas();
-      }
+    Mousetrap.bind("shift+a", () => {
+      startGrab();
     });
   }
 
-  function addCanvas() {
+  function startGrab() {
     const canvas = document.createElement("canvas");
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
@@ -37,7 +35,6 @@
       position: fixed;
       z-index: 999999;
     `;
-    canvas.id = "any_translate__canvas";
     attachDrawEvents(canvas);
     document.body.appendChild(canvas);
   }
@@ -77,6 +74,7 @@
       mousedown = false;
       let toX = e.clientX * devicePixelRatio;
       let toY = e.clientY * devicePixelRatio;
+      iframe.style.display = "block";
       sendRegionCoordinates({
         fromX: Math.min(fromX, toX),
         fromY: Math.min(fromY, toY),
@@ -110,6 +108,7 @@
 
   function insertIframe() {
     iframe = document.createElement("iframe");
+    iframe.allowtransparency = "true"
     iframe.style = `
       border: none;
       width: 10vw;
@@ -120,7 +119,7 @@
       bottom: 1em;
       z-index: 999999;
     `;
-    iframe.src = chrome.runtime.getURL("/result.html");
+    iframe.src = chrome.runtime.getURL("/ocr.html");
     document.body.appendChild(iframe);
   }
 }

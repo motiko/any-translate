@@ -6,14 +6,7 @@
   "background": {
     "scripts": ["background.js"]
   },
-  "content_scripts": [
-    {
-      "matches": ["<all_urls>"],
-      "js": ["keyboard.js"],
-      "run_at": "document_end"
-    }
-  ],
-  "permissions": ["<all_urls>", "activeTab", "storage", "notifications"],
+  "permissions": ["activeTab", "storage", "notifications"],
   "browser_action": {
     "default_icon": {
       "16": "assets/icon-16.png",
@@ -31,5 +24,5 @@
     "256": "assets/icon-256.png",
     "512": "assets/icon-512.png"
   },
-  "web_accessible_resources": ["result.html", "lib/tesseract/tesseract.min.js"]
+  "web_accessible_resources": ["ocr.html", "lib/tesseract/tesseract.min.js"]
 }

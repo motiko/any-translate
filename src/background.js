@@ -9,7 +9,9 @@ function notification(e) {
 
 chrome.browserAction.onClicked.addListener(() => {
   chrome.tabs.executeScript({
-    runAt: "document_start",
+    file: "lib/mousetrap/1.6.1/mousetrap.min.js",
+  });
+  chrome.tabs.executeScript({
     file: "grab.js",
   });
 });
