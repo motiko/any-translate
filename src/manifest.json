@@ -1,0 +1,35 @@
+{
+  "name": "AnyTranslate",
+  "description": "Thranslate from anywhere: image, video, pdf, text",
+  "version": "0.0.1",
+  "manifest_version": 2,
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["keyboard.js"],
+      "run_at": "document_end"
+    }
+  ],
+  "permissions": ["<all_urls>", "activeTab", "storage", "notifications"],
+  "browser_action": {
+    "default_icon": {
+      "16": "assets/icon-16.png",
+      "48": "assets/icon-48.png",
+      "128": "assets/icon-128.png"
+    }
+  },
+  "icons": {
+    "16": "assets/icon-16.png",
+    "24": "assets/icon-24.png",
+    "32": "assets/icon-32.png",
+    "48": "assets/icon-48.png",
+    "64": "assets/icon-64.png",
+    "128": "assets/icon-128.png",
+    "256": "assets/icon-256.png",
+    "512": "assets/icon-512.png"
+  },
+  "web_accessible_resources": ["result.html"]
+}

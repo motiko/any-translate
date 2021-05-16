@@ -1,0 +1,14 @@
+{
+  "name": "any-translate",
+  "version": "0.0.1",
+  "description": "Translate text anywhere",
+  "main": "index.js",
+  "repository": "git@github.com:motiko/any-translate.git",
+  "author": "moti <moti.kor@gmail.com>",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+    "mousetrap": "^1.6.5",
+    "tesseract.js": "^2.1.4"
+  }
+}
