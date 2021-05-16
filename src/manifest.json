@@ -31,5 +31,5 @@
     "256": "assets/icon-256.png",
     "512": "assets/icon-512.png"
   },
-  "web_accessible_resources": ["result.html"]
+  "web_accessible_resources": ["result.html", "lib/tesseract/tesseract.min.js"]
 }

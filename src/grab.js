@@ -96,6 +96,7 @@
       position: fixed;
       right: 2em;
       bottom: 2em;
+      z-index: 999999;
     `;
     iframe.src = chrome.runtime.getURL("/result.html");
     document.body.appendChild(iframe);
