@@ -24,5 +24,6 @@
     "256": "assets/icon-256.png",
     "512": "assets/icon-512.png"
   },
-  "web_accessible_resources": ["ocr.html", "lib/tesseract/tesseract.min.js"]
+  "web_accessible_resources": ["ocr.html", "lib/tesseract/tesseract.min.js"],
+  "options_page": "options.html"
 }

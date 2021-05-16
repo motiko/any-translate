@@ -29,6 +29,7 @@
     console.log(data);
     if (data.text?.trim?.() === "") {
       console.warn("No text was detected");
+      parent.postMessage({ error: "No text was detected" }, origin);
     } else {
       parent.postMessage({ text: data.text }, origin);
     }

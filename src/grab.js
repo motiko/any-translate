@@ -7,21 +7,27 @@
   attachEvents();
 
   function attachEvents() {
-    window.addEventListener("message", (e) => {
-      if (!extUrl.match(e.orign)) return;
-      console.info("Detected text:", e.data.text);
-      iframe.style.display = "none";
-      window.open(
-        `https://translate.google.com/?hl=en#auto/en/${encodeURIComponent(
-          e.data.text
-        )}`,
-        "Google Translate",
-        "height=400,width=776,location=0,menubar=0,scrollbars=1,toolbar=0"
-      );
-    });
-    Mousetrap.bind("shift+a", () => {
-      startGrab();
-    });
+    chrome.storage.sync.get(
+      {
+        translateUrl: "https://translate.google.com/#auto/en/",
+        hotkey: "shift+a",
+      },
+      function ({ translateUrl, hotkey }) {
+        window.addEventListener("message", (e) => {
+          if (!extUrl.match(e.orign)) return;
+          console.info("Detected text:", e.data.text);
+          iframe.style.display = "none";
+          window.open(
+            `${translateUrl}${encodeURIComponent(e.data.text)}`,
+            "AnyTranslate",
+            "height=400,width=776,location=0,menubar=0,scrollbars=1,toolbar=0"
+          );
+        });
+        Mousetrap.bind(hotkey, () => {
+          startGrab();
+        });
+      }
+    );
   }
 
   function startGrab() {
@@ -63,6 +69,8 @@
     let fromY;
 
     function mouseDown(e) {
+      e.stopPropagation();
+      e.preventDefault();
       mousedown = true;
       fromX = e.clientX * devicePixelRatio;
       fromY = e.clientY * devicePixelRatio;
@@ -71,6 +79,8 @@
     }
 
     function mouseUp(e) {
+      e.stopPropagation();
+      e.preventDefault();
       mousedown = false;
       let toX = e.clientX * devicePixelRatio;
       let toY = e.clientY * devicePixelRatio;
@@ -90,6 +100,8 @@
     }
 
     function mouseMove(e) {
+      e.stopPropagation();
+      e.preventDefault();
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       if (!mousedown) return;
       ctx.beginPath();
@@ -108,7 +120,7 @@
 
   function insertIframe() {
     iframe = document.createElement("iframe");
-    iframe.allowtransparency = "true"
+    iframe.allowtransparency = "true";
     iframe.style = `
       border: none;
       width: 10vw;
