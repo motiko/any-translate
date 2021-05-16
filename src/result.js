@@ -1,12 +1,12 @@
 /* globals Tesseract */
 {
   let worker, workerReady;
+  let origin;
   const initWorker = async () => {
     worker = Tesseract.createWorker({
       workerPath: chrome.runtime.getURL("lib/tesseract/worker.min.js"),
-      // langPath: chrome.runtime.getURL("traineddata"),
       corePath: chrome.runtime.getURL("lib/tesseract/tesseract-core.wasm.js"),
-      logger: (m) => console.log("~~~", m),
+      logger: (m) => console.info("tesseract progress:", m),
     });
     const lang = "eng+heb";
     await worker.load();
@@ -22,17 +22,14 @@
     if (data.text?.trim?.() === "") {
       console.warn("No text was detected");
     } else {
-      window.open(
-        `https://translate.google.com/?hl=en#auto/en/${data.text}`,
-        "Google Translate",
-        "height=400,width=776,location=0,menubar=0,scrollbars=1,toolbar=0"
-      );
+      parent.postMessage({ text: data.text }, origin);
     }
   };
 
   const initPage = async () => {
     initWorker();
     window.addEventListener("message", (e) => {
+      origin = e.origin;
       doOCR(e.data.dataUrl);
     });
   };

@@ -2,6 +2,29 @@
   let iframe;
   addCanvas();
   insertIframe();
+  attachEvents();
+
+  const extUrl = chrome.runtime.getURL("");
+  const extOrigin = extUrl.substring(0, extUrl.length - 1);
+  function attachEvents() {
+    window.addEventListener("message", (e) => {
+      console.info("Detected text:", e.data.text);
+      if (!extUrl.match(e.orign)) return;
+      window.open(
+        `https://translate.google.com/?hl=en#auto/en/${encodeURIComponent(
+          e.data.text
+        )}`,
+        "Google Translate",
+        "height=400,width=776,location=0,menubar=0,scrollbars=1,toolbar=0"
+      );
+    });
+    document.addEventListener("keyup", (e) => {
+      const key = e.which || e.keyCode;
+      if (e.shiftKey && e.code == "KeyT") {
+        addCanvas();
+      }
+    });
+  }
 
   function addCanvas() {
     const canvas = document.createElement("canvas");
@@ -28,7 +51,7 @@
             dataUrl: response.regionDataUrl,
             command: "parseImage",
           },
-          "*"
+          extOrigin
         );
       }
     );
