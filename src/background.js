@@ -1,12 +1,3 @@
-function notification(e) {
-  chrome.notifications.create({
-    type: "basic",
-    iconUrl: "assets/icon-48.png",
-    title: chrome.runtime.getManifest().name,
-    message: e.message || e,
-  });
-}
-
 chrome.browserAction.onClicked.addListener(() => {
   chrome.tabs.executeScript({
     file: "lib/mousetrap/1.6.1/mousetrap.min.js",
@@ -22,9 +13,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     const { fromX, fromY, toX, toY } = request;
     const width = toX - fromX;
     const height = toY - fromY;
-    if (!width || !height) {
-      return notification("Please select a region to translate");
-    }
     chrome.tabs.captureVisibleTab(
       sender.tab.windowId,
       {

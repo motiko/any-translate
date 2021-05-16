@@ -13,10 +13,16 @@
           const progressElem = document.querySelector("progress");
           progressElem.value = progress;
           progressElem.innerText = progress;
+          if (m.progress === 1) {
+            requestAnimationFrame(() => {
+              progressElem.value = 0;
+              progressElem.innerText = 0;
+            });
+          }
         }
       },
     });
-    const lang = "eng+heb";
+    const lang = "eng";
     await worker.load();
     await worker.loadLanguage(lang);
     await worker.initialize(lang);
@@ -27,8 +33,15 @@
     if (!workerReady) await initWorker();
     const { data } = await worker.recognize(base64);
     console.log(data);
-    if (data.text?.trim?.() === "") {
+    if (data.text?.trim?.() === "" || data.confidence < 60) {
       console.warn("No text was detected");
+      document.getElementById("error").style.display = "block";
+      document.getElementById("progress").style.display = "none";
+
+      setTimeout(() => {
+        document.getElementById("error").style.display = "none";
+        document.getElementById("progress").style.display = "block";
+      }, 950);
       parent.postMessage({ error: "No text was detected" }, origin);
     } else {
       parent.postMessage({ text: data.text }, origin);

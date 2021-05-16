@@ -15,13 +15,15 @@
       function ({ translateUrl, hotkey }) {
         window.addEventListener("message", (e) => {
           if (!extUrl.match(e.orign)) return;
-          console.info("Detected text:", e.data.text);
-          iframe.style.display = "none";
-          window.open(
-            `${translateUrl}${encodeURIComponent(e.data.text)}`,
-            "AnyTranslate",
-            "height=400,width=776,location=0,menubar=0,scrollbars=1,toolbar=0"
-          );
+          setTimeout(() => (iframe.style.display = "none"), 750);
+          if (e.data.text) {
+            console.info("Detected text:", e.data.text);
+            window.open(
+              `${translateUrl}${encodeURIComponent(e.data.text)}`,
+              "AnyTranslate",
+              "height=400,width=776,location=0,menubar=0,scrollbars=1,toolbar=0"
+            );
+          }
         });
         Mousetrap.bind(hotkey, () => {
           startGrab();
@@ -97,6 +99,7 @@
       canvas.removeEventListener("mousemove", mouseMove);
 
       canvas.parentNode.removeChild(canvas);
+      console.info("removed canvas");
     }
 
     function mouseMove(e) {
@@ -123,9 +126,9 @@
     iframe.allowtransparency = "true";
     iframe.style = `
       border: none;
-      width: 10vw;
-      height: 2vh;
-      background-color: rgb( 247, 249, 249 );
+      width: 12vw;
+      height: 5vh;
+      background-color: transparent;
       position: fixed;
       right: 1em;
       bottom: 1em;
