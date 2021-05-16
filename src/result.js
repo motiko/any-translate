@@ -6,7 +6,15 @@
     worker = Tesseract.createWorker({
       workerPath: chrome.runtime.getURL("lib/tesseract/worker.min.js"),
       corePath: chrome.runtime.getURL("lib/tesseract/tesseract-core.wasm.js"),
-      logger: (m) => console.info("tesseract progress:", m),
+      logger: (m) => {
+        console.info("tesseract progress:", m);
+        if (m.status === "recognizing text") {
+          const progress = m.progress === 0 ? 30 : Math.round(m.progress * 100);
+          const progressElem = document.querySelector("progress");
+          progressElem.value = progress;
+          progressElem.innerText = progress;
+        }
+      },
     });
     const lang = "eng+heb";
     await worker.load();

@@ -112,13 +112,12 @@
     iframe = document.createElement("iframe");
     iframe.style = `
       border: none;
-      max-width: 80vw;
-      width: 30vw;
-      height: 20vh;
+      width: 10vw;
+      height: 2vh;
       background-color: rgb( 247, 249, 249 );
       position: fixed;
-      right: 2em;
-      bottom: 2em;
+      right: 1em;
+      bottom: 1em;
       z-index: 999999;
     `;
     iframe.src = chrome.runtime.getURL("/result.html");
