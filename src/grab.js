@@ -76,9 +76,9 @@
       function ({ hotkey }) {
         ctx.font = "30px Helvetica";
         ctx.fillText("Select Text to Translate", canvas.width - 400, 50);
-        ctx.font = "20px Helvetica";
-        ctx.fillStyle = "black";
-        ctx.fillText(`(${hotkey})`, canvas.width - 400, 80);
+        // ctx.font = "20px Helvetica";
+        // ctx.fillStyle = "black";
+        // ctx.fillText(`(${hotkey})`, canvas.width - 400, 80);
         ctx.fillStyle = "rgba(236, 240, 241,0.2)";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
       }
