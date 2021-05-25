@@ -22,11 +22,14 @@
         }
       },
     });
-    const lang = "eng";
-    await worker.load();
-    await worker.loadLanguage(lang);
-    await worker.initialize(lang);
-    workerReady = true;
+    chrome.storage.sync.get("ocrLang", async function ({ ocrLang }) {
+      const lang = ocrLang || "eng";
+      console.log(lang)
+      await worker.load();
+      await worker.loadLanguage(lang);
+      await worker.initialize(lang);
+      workerReady = true;
+    });
   };
 
   const doOCR = async (base64) => {

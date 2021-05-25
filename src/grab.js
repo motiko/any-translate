@@ -32,16 +32,25 @@
     );
   }
 
+  function removeCanvases() {
+    const canvases = document.querySelectorAll(
+      ".__any_translate_extension_canvas"
+    );
+    canvases.forEach((canvas) => canvas.parentNode.removeChild(canvas));
+  }
+
   function startGrab() {
+    removeCanvases();
     const canvas = document.createElement("canvas");
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
+    canvas.id = "anyCanvas";
     canvas.style = `
       cursor: crosshair;
       top: 0;
       right: 0;
       position: fixed;
-      z-index: 999999;
+      z-index: 2147483647;
     `;
     initCanvas(canvas);
     document.body.appendChild(canvas);
@@ -65,6 +74,7 @@
   function initCanvas(canvas) {
     var ctx = canvas.getContext("2d");
     let mousedown = false;
+    canvas.className = "__any_translate_extension_canvas";
     let clientFromX;
     let clientFromY;
     let fromX;
@@ -76,10 +86,7 @@
       function ({ hotkey }) {
         ctx.font = "30px Helvetica";
         ctx.fillText("Select Text to Translate", canvas.width - 400, 50);
-        // ctx.font = "20px Helvetica";
-        // ctx.fillStyle = "black";
-        // ctx.fillText(`(${hotkey})`, canvas.width - 400, 80);
-        ctx.fillStyle = "rgba(236, 240, 241,0.2)";
+        ctx.fillStyle = "rgba(200, 200, 201,0.35)";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
       }
     );
@@ -141,7 +148,7 @@
       position: fixed;
       right: 1em;
       bottom: 1em;
-      z-index: 999999;
+      z-index: 2147483647;
     `;
     iframe.src = chrome.runtime.getURL("/ocr.html");
     document.body.appendChild(iframe);

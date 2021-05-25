@@ -9,6 +9,7 @@ function attachEvents() {
 const defaultOptions = {
   translateUrl: "https://translate.google.com/#auto/en/",
   hotkey: "shift+a",
+  ocrLang: "eng",
 };
 
 function restoreDefaults() {
@@ -29,11 +30,12 @@ function showMessage(id) {
 function saveOptions() {
   const hotkey = document.getElementById("hotkey").value;
   const translateUrl = document.getElementById("translateUrl").value;
+  const ocrLang = document.getElementById("ocrLang").value;
   if (!hotkey || !translateUrl) {
     showMessage("error");
     return;
   }
-  chrome.storage.sync.set({ hotkey, translateUrl }, () => {
+  chrome.storage.sync.set({ hotkey, translateUrl, ocrLang }, () => {
     showMessage("success");
   });
 }
@@ -43,10 +45,12 @@ function loadOptions() {
     {
       translateUrl: "https://translate.google.com/?hl=en#auto/en/",
       hotkey: "shift+a",
+      ocrLang: "eng",
     },
-    function ({ translateUrl, hotkey }) {
+    function ({ translateUrl, hotkey, ocrLang }) {
       document.getElementById("hotkey").value = hotkey;
       document.getElementById("translateUrl").value = translateUrl;
+      document.getElementById("ocrLang").value = ocrLang;
     }
   );
 }
