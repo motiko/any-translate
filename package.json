@@ -1,6 +1,6 @@
 {
   "name": "any-translate",
-  "version": "0.0.1",
+  "version": "0.0.4",
   "description": "Translate text anywhere",
   "main": "index.js",
   "repository": "git@github.com:motiko/any-translate.git",
@@ -8,18 +8,29 @@
   "license": "MIT",
   "private": false,
   "scripts": {
-    "build:css": "postcss tailwind.css -o src/tailwind.css"
+    "dev": "webpack --config webpack.dev.js",
+    "build": "webpack --config webpack.config.js",
+    "build:css": "postcss tailwind.css -o src/assets/tailwind.css",
+    "zip": "zip pack.zip dist/ -r"
   },
   "dependencies": {
     "@fullhuman/postcss-purgecss": "^4.0.3",
     "@tailwindcss/forms": "^0.3.2",
     "autoprefixer": "^10.2.5",
     "cssnano": "^5.0.2",
+    "html-webpack-plugin": "^5.5.0",
     "mousetrap": "^1.6.5",
     "postcss": "^8.2.15",
     "postcss-cli": "^8.3.1",
     "tailwind": "^4.0.0",
     "tailwindcss": "^2.1.2",
-    "tesseract.js": "^2.1.4"
+    "tesseract.js": "2.1.4"
+  },
+  "devDependencies": {
+    "copy-webpack-plugin": "^11.0.0",
+    "webpack": "^5.74.0",
+    "webpack-cli": "^4.10.0",
+    "webpack-ext-reloader": "^1.1.9",
+    "webpack-extension-manifest-plugin": "^0.8.0"
   }
 }
