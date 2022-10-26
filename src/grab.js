@@ -9,17 +9,17 @@
   function attachEvents() {
     chrome.storage.sync.get(
       {
-        translateUrl: "https://translate.google.com/#auto/en/",
         hotkey: "shift+a",
+        translateTo: "en",
       },
-      function ({ translateUrl, hotkey }) {
+      function ({ translateTo, hotkey }) {
         window.addEventListener("message", (e) => {
           if (!extUrl.match(e.orign)) return;
           setTimeout(() => (iframe.style.display = "none"), 750);
           if (e.data.text) {
             console.info("Detected text:", e.data.text);
             window.open(
-              `${translateUrl}${encodeURIComponent(e.data.text)}`,
+              `https://translate.google.com/#auto/${translateTo}/${encodeURIComponent(e.data.text)}`,
               "AnyTranslate",
               "height=400,width=776,location=0,menubar=0,scrollbars=1,toolbar=0"
             );
