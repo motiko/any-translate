@@ -1,6 +1,6 @@
 {
   "name": "any-translate",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Translate text anywhere",
   "main": "index.js",
   "repository": "git@github.com:motiko/any-translate.git",

@@ -12,10 +12,10 @@ const outputDir = path.join(__dirname, "dist");
 module.exports = {
   mode: "production",
   entry: {
-    background: path.join(inputDir,"background.js"),
-    options: path.join(inputDir,"options.js"),
-    ocr: path.join(inputDir,"ocr.js"),
-    grab: path.join(inputDir,"grab.js"),
+    background: path.join(inputDir, "background.js"),
+    options: path.join(inputDir, "options.js"),
+    ocr: path.join(inputDir, "ocr.js"),
+    grab: path.join(inputDir, "grab.js"),
   },
   output: {
     path: outputDir,
@@ -90,11 +90,4 @@ module.exports = {
       chunks: ["ocr"],
     }),
   ],
-  optimization: {
-    minimizer: [
-      new TerserPlugin({
-        exclude: /\.asm.js$/,
-      }),
-    ],
-  },
 };

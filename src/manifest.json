@@ -1,15 +1,17 @@
 {
   "name": "AnyTranslate",
-  "description": "Translate from anywhere: image, video, pdf, text",
+  "description": "Translate text anywhere",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAmLF40Cjkb156N0uWAEwnbxkrSuFfND7OwnDE6mCRBw7hR/gYiYGJzmu2OMapdBUi9W/+OX3ScZBHR6+9xpGZhei698OzpN+lmXd/UbX+Fv1Maf7Vi5IErFH9tzA8+kbuhooGFa8StO7NFUlY7cKbf6GYU/OguX149kOJ339cZ0XGPd63T8Ugf6dj7E9ptk94vnlXo9TZCW8iZ7uVWtg7QR5Ajuo9j7Lu4rMdah4CR96TwkpB/UZODpBtQ+DBq4XeTeELecO6Drc9SwpwdWIYXjysDACEeZmUvgxE9eCKyuRBwvv12JYedwO7DkONH2jslIexseHCJu6fnCrki9SJ/QIDAQAB",
-  "version": "0.0.5",
-  "manifest_version": 2,
+  "version": "0.0.7",
+  "manifest_version": 3,
   "background": {
-    "scripts": ["background.js"]
+    "service_worker": "background.js"
   },
-  "permissions": ["activeTab", "storage"],
-  "content_security_policy": "script-src 'self'; object-src 'self'; script-src-elem 'self' chrome-extension://hhcjlckencdgngjkbbpoffncomjajegm;",
-  "browser_action": {
+  "permissions": ["activeTab", "storage", "scripting","offscreen"],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; script-src-elem 'self' chrome-extension://hhcjlckencdgngjkbbpoffncomjajegm;"
+  },
+  "action": {
     "default_icon": {
       "16": "assets/icon-16.png",
       "48": "assets/icon-48.png",
@@ -26,6 +28,16 @@
     "256": "assets/icon-256.png",
     "512": "assets/icon-512.png"
   },
-  "web_accessible_resources": ["ocr.html", "lib/tesseract/tesseract.min.js", "lib/tesseract/worker.min.js"],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "ocr.html",
+        "lib/tesseract/tesseract.min.js",
+        "lib/tesseract/worker.min.js"
+      ],
+      "extension_ids": ["hhcjlckencdgngjkbbpoffncomjajegm"],
+      "use_dynamic_url": false
+    }
+  ],
   "options_page": "options.html"
 }
