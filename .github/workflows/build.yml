@@ -1,0 +1,32 @@
+name: Build
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+      - run: yarn install --frozen-lockfile
+      - run: yarn build
+      - name: Check manifest
+        run: |
+          node -e '
+            const m = require("./dist/manifest.json");
+            const p = require("./package.json");
+            if (m.manifest_version !== 3) throw new Error("manifest_version is not 3");
+            if (m.version !== p.version) throw new Error(`manifest version ${m.version} != package.json ${p.version}`);
+            console.log(`manifest OK: ${m.name} ${m.version}`);
+          '
+      - run: yarn zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: any-translate-${{ github.sha }}
+          path: pack.zip
