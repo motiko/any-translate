@@ -1,3 +1,5 @@
+import { DEFAULTS } from "./defaults";
+
 const googleLangs = [
   { language_name: "Automatic Detection", language_code: "auto" },
   { language_name: "Afrikaans", language_code: "af" },
@@ -194,15 +196,8 @@ function populateSelects() {
     .join("");
 }
 
-const defaultOptions = {
-  translateUrl: "https://translate.google.com/#auto/en/",
-  hotkey: "shift+a",
-  ocrLang: "deu",
-  translateTo: "en",
-};
-
 function restoreDefaults() {
-  chrome.storage.sync.set(defaultOptions, () => {
+  chrome.storage.sync.set(DEFAULTS, () => {
     showMessage("success");
     loadOptions();
   });
@@ -231,7 +226,7 @@ function saveOptions() {
 
 function loadOptions() {
   chrome.storage.sync.get(
-    defaultOptions,
+    DEFAULTS,
     function ({ hotkey, ocrLang, translateTo }) {
       document.getElementById("hotkey").value = hotkey;
       document.getElementById("ocrLang").value = ocrLang;
