@@ -11,7 +11,7 @@
     "dev": "webpack --config webpack.dev.js",
     "build": "webpack --config webpack.config.js",
     "build:css": "postcss tailwind.css -o src/assets/tailwind.css",
-    "zip": "zip pack.zip dist/ -r"
+    "zip": "rm -f pack.zip && cd dist && zip -qr ../pack.zip ."
   },
   "dependencies": {
     "@fullhuman/postcss-purgecss": "^4.0.3",

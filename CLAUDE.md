@@ -13,7 +13,9 @@ Uses yarn (`yarn.lock`). There are no tests or linter. Formatting follows `src/.
 - `yarn build`: production build into `dist/` (cleaned first)
 - `yarn dev`: development build in watch mode with `webpack-ext-reloader` (≥1.1.13, needed for MV3 service workers) on port 9090. Load `dist/` as an unpacked extension in `chrome://extensions`.
 - `yarn build:css`: regenerates `src/assets/tailwind.css` from root `tailwind.css` through PostCSS (Tailwind v2 + PurgeCSS, which scans only `src/options.html`). Rerun it after adding Tailwind classes to the options page.
-- `yarn zip`: packs `dist/` into `pack.zip` for store upload
+- `yarn zip`: packs the contents of `dist/` into `pack.zip` (manifest at the zip root) for store upload. Run `yarn build` first so the zip holds a production build.
+
+CI (`.github/workflows/`): `build.yml` builds every PR and push to `main`, checks that the manifest is MV3 and that its version matches `package.json`, and uploads the zip as an artifact. `release.yml` runs on `v*` tags: it fails unless the tag equals `v` + the `package.json` version, then publishes a GitHub release with the zip attached. To release, bump `version` in `package.json`, merge, then push tag `v<version>`.
 
 ## Architecture
 
