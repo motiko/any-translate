@@ -1,0 +1,31 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project
+
+AnyTranslate is a Chrome extension (Manifest V3). The user drags a box over any part of the page; the extension OCRs that screenshot region in the browser with Tesseract.js v5 and opens the recognized text in a Google Translate popup window. There is no backend.
+
+## Commands
+
+Uses yarn (`yarn.lock`). There are no tests or linter. Formatting follows `src/.prettierrc` (2 spaces, no tabs).
+
+- `yarn build`: production build into `dist/` (cleaned first)
+- `yarn dev`: development build in watch mode with `webpack-ext-reloader` (≥1.1.13, needed for MV3 service workers) on port 9090. Load `dist/` as an unpacked extension in `chrome://extensions`.
+- `yarn build:css`: regenerates `src/assets/tailwind.css` from root `tailwind.css` through PostCSS (Tailwind v2 + PurgeCSS, which scans only `src/options.html`). Rerun it after adding Tailwind classes to the options page.
+- `yarn zip`: packs `dist/` into `pack.zip` for store upload
+
+## Architecture
+
+Flow across the four webpack entry points in `src/`. Each entry is bundled, so they can `import` shared modules such as `src/defaults.js`.
+
+1. **`background.js`** (MV3 service worker, so there's no DOM): when the toolbar button is clicked, it injects `lib/mousetrap/.../mousetrap.min.js` and `grab.js` with `chrome.scripting.executeScript`. On a `grabRegion` message it returns the full `captureVisibleTab` screenshot as `dataUrl`; it doesn't crop.
+2. **`grab.js`** (injected content script): it draws a full-viewport overlay canvas for selecting a region and embeds a hidden iframe pointing at `ocr.html`. It's injected again on every icon click; `window.__anyTranslateLoaded` makes the repeat injections only start a new grab. On mouseup it asks the background for the screenshot and posts `{command: "parseImage", dataUrl, rectangle, viewportWidth}` to the iframe. `rectangle` is in CSS pixels. When the iframe (checked by `e.origin`) posts `{text}` back, it opens `translate.google.com/#auto/<translateTo>/<text>`. It also binds the configured hotkey with Mousetrap so the user can grab again.
+3. **`ocr.js` / `ocr.html`** (extension page in the iframe, `web_accessible_resources`): this creates one Tesseract worker at load time (`createWorker(ocrLang, 1, {workerPath, corePath, workerBlobURL: false})`). It scales the rectangle by `image.naturalWidth / viewportWidth`, which gives device pixels without relying on `devicePixelRatio`. It then calls `recognize(dataUrl, { rectangle })` and posts `{text}` or `{error}` to the parent. A result with confidence below 60 is treated as "no text". Language data is downloaded from Tesseract's default CDN.
+4. **`options.js` / `options.html`**: the options page. Settings live in `chrome.storage.sync`: `hotkey`, `ocrLang` (a Tesseract code such as `eng` or `deu`) and `translateTo` (a Google Translate code). Defaults for all of them are in `src/defaults.js`.
+
+Build and MV3 constraints:
+- The CSP is `script-src 'self' 'wasm-unsafe-eval'`. There's no remote code, `eval` or `blob:` workers, so any new library has to be bundled or copied into `dist/lib/`.
+- Webpack copies `tesseract.js/dist/worker.min.js` to `dist/lib/tesseract/`, and only the `tesseract-core*-lstm.wasm.js` cores to `dist/lib/tesseract-core/`. OEM 1 (LSTM) is hardcoded, so the other cores are never loaded. If you change the OEM, change the copy pattern too.
+- `WebpackExtensionManifestPlugin` builds `dist/manifest.json` from `src/manifest.json`, taking `version` and `description` from `package.json`. Bump the version in `package.json`.
+- `HtmlWebpackPlugin` injects the `<script>` tags. Don't add them to the HTML templates by hand.

@@ -12,9 +12,9 @@ module.exports = {
       port: 9090,
       reloadPage: true,
       entries: {
-        contentScript: ["autoplay", "index"],
+        contentScript: ["grab"],
         background: "background",
-        extensionPage: ["options"],
+        extensionPage: ["options", "ocr"],
       },
     }),
   ],

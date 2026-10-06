@@ -1,7 +1,6 @@
 const path = require("path");
 const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const WebpackExtensionManifestPlugin = require("webpack-extension-manifest-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
@@ -12,36 +11,18 @@ const outputDir = path.join(__dirname, "dist");
 module.exports = {
   mode: "production",
   entry: {
-    background: path.join(inputDir,"background.js"),
-    options: path.join(inputDir,"options.js"),
-    ocr: path.join(inputDir,"ocr.js"),
-    grab: path.join(inputDir,"grab.js"),
+    background: path.join(inputDir, "background.js"),
+    options: path.join(inputDir, "options.js"),
+    ocr: path.join(inputDir, "ocr.js"),
+    grab: path.join(inputDir, "grab.js"),
   },
   output: {
     path: outputDir,
     filename: "[name].js",
-  },
-  module: {
-    rules: [
-      {
-        test: /\.css$/,
-        use: ["style-loader", "css-loader"],
-      },
-      {
-        test: /\.(png|svg|jpg|gif)$/,
-        type: "asset/resource",
-        generator: {
-          filename: "img/[name][ext]",
-        },
-      },
-    ],
-  },
-  resolve: {
-    extensions: [".js", ".jsx", ".ts", ".tsx"],
+    clean: true,
   },
   plugins: [
     new webpack.ProgressPlugin(),
-    new CleanWebpackPlugin(),
     new WebpackExtensionManifestPlugin({
       config: {
         base: path.join(inputDir, "manifest.json"),
@@ -59,23 +40,12 @@ module.exports = {
           to: path.join(outputDir, "lib"),
         },
         {
-          from: path.join(
-            __dirname,
-            "node_modules",
-            "tesseract.js",
-            "dist",
-            "/"
-          ),
+          from: path.join(__dirname, "node_modules", "tesseract.js", "dist", "worker.min.js"),
           to: path.join(outputDir, "lib", "tesseract"),
         },
         {
-          from: path.join(
-            __dirname,
-            "node_modules",
-            "tesseract.js-core",
-            "tesseract-core.asm.js"
-          ),
-          to: path.join(outputDir, "lib", "tesseract"),
+          from: path.join(__dirname, "node_modules", "tesseract.js-core", "tesseract-core*-lstm.wasm.js"),
+          to: path.join(outputDir, "lib", "tesseract-core", "[name][ext]"),
         },
       ],
     }),
@@ -90,10 +60,13 @@ module.exports = {
       chunks: ["ocr"],
     }),
   ],
+  performance: {
+    assetFilter: (asset) => !asset.startsWith("lib/"),
+  },
   optimization: {
     minimizer: [
       new TerserPlugin({
-        exclude: /\.asm.js$/,
+        exclude: /^lib\//,
       }),
     ],
   },
