@@ -15,7 +15,18 @@ Uses yarn (`yarn.lock`). There are no tests or linter. Formatting follows `src/.
 - `yarn build:css`: regenerates `src/assets/tailwind.css` from root `tailwind.css` through PostCSS (Tailwind v2 + PurgeCSS, which scans only `src/options.html`). Rerun it after adding Tailwind classes to the options page.
 - `yarn zip`: packs the contents of `dist/` into `pack.zip` (manifest at the zip root) for store upload. Run `yarn build` first so the zip holds a production build.
 
-CI (`.github/workflows/`): `build.yml` builds every PR and push to `main`, checks that the manifest is MV3 and that its version matches `package.json`, and uploads the zip as an artifact. `release.yml` runs on `v*` tags: it fails unless the tag equals `v` + the `package.json` version, then publishes a GitHub release with the zip attached. To release, bump `version` in `package.json`, merge, then push tag `v<version>`.
+CI: `.github/workflows/build.yml` builds every PR and push to `main`, checks that the built manifest is MV3 and that its version matches `package.json`, and uploads the zip as an artifact.
+
+## Releasing
+
+The user-facing process and the Chrome Web Store setup are in the "Releasing" section of `README.md`. Summary:
+
+- `yarn version --patch|--minor|--major` bumps `package.json`, commits and tags `vX.Y.Z`. `git push --follow-tags` triggers `.github/workflows/release.yml`: tag/version check, `build`, `yarn zip`, then a GitHub release with `any-translate-vX.Y.Z.zip` attached.
+- `release.yml` then calls `.github/workflows/publish-chrome-web-store.yml`, which uploads that zip with the Chrome Web Store API v2 and submits it for review (`DEFAULT_PUBLISH`, so it goes live when approved). Auth is keyless (GitHub OIDC → Workload Identity Federation → service account), configured through repository variables `CWS_PUBLISHER_ID`, `CWS_EXTENSION_ID`, `GCP_WORKLOAD_IDENTITY_PROVIDER` and `GCP_SERVICE_ACCOUNT`. Without them the publish job is skipped with a warning.
+- The store rejects an upload while the previous version is in review. Retry with `gh workflow run publish-chrome-web-store.yml -f tag=vX.Y.Z`. `-f check_only=true` tests auth and uploads nothing.
+- `src/manifest.json` has no `version`. The build takes it from `package.json`, so don't add one.
+
+For agents: a pushed tag publishes to real users after review, so never run `yarn version`, push a tag or dispatch the publish workflow (except with `check_only=true`) unless the user explicitly asks for a release.
 
 ## Architecture
 
@@ -29,5 +40,5 @@ Flow across the four webpack entry points in `src/`. Each entry is bundled, so t
 Build and MV3 constraints:
 - The CSP is `script-src 'self' 'wasm-unsafe-eval'`. There's no remote code, `eval` or `blob:` workers, so any new library has to be bundled or copied into `dist/lib/`.
 - Webpack copies `tesseract.js/dist/worker.min.js` to `dist/lib/tesseract/`, and only the `tesseract-core*-lstm.wasm.js` cores to `dist/lib/tesseract-core/`. OEM 1 (LSTM) is hardcoded, so the other cores are never loaded. If you change the OEM, change the copy pattern too.
-- `WebpackExtensionManifestPlugin` builds `dist/manifest.json` from `src/manifest.json`, taking `version` and `description` from `package.json`. Bump the version in `package.json`.
+- `WebpackExtensionManifestPlugin` builds `dist/manifest.json` from `src/manifest.json`, taking `version` and `description` from `package.json`.
 - `HtmlWebpackPlugin` injects the `<script>` tags. Don't add them to the HTML templates by hand.
