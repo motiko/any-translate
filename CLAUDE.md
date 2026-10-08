@@ -40,5 +40,6 @@ Flow across the four webpack entry points in `src/`. Each entry is bundled, so t
 Build and MV3 constraints:
 - The CSP is `script-src 'self' 'wasm-unsafe-eval'`. There's no remote code, `eval` or `blob:` workers, so any new library has to be bundled or copied into `dist/lib/`.
 - Webpack copies `tesseract.js/dist/worker.min.js` to `dist/lib/tesseract/`, and only the `tesseract-core*-lstm.wasm.js` cores to `dist/lib/tesseract-core/`. OEM 1 (LSTM) is hardcoded, so the other cores are never loaded. If you change the OEM, change the copy pattern too.
+- The Chrome Web Store rejects a package if the code even mentions a remote script URL, including unused fallbacks. So `NormalModuleReplacementPlugin` swaps tesseract.js's browser `defaultOptions.js` for `src/tesseract-options.js`, which has no jsDelivr `workerPath`, and the copy `transform` strips the jsDelivr `corePath` fallback from `worker.min.js`. `NoRemoteCodePlugin` fails the build if a `tesseract.js@`/`tesseract.js-core@` CDN URL appears in any emitted file. The `@tesseract.js-data` URL for language data is allowed because it isn't code.
 - `WebpackExtensionManifestPlugin` builds `dist/manifest.json` from `src/manifest.json`, taking `version` and `description` from `package.json`.
 - `HtmlWebpackPlugin` injects the `<script>` tags. Don't add them to the HTML templates by hand.
