@@ -22,7 +22,6 @@ const workerPromise = chrome.storage.sync
   .then(({ ocrLang }) =>
     createWorker(ocrLang, 1, {
       workerPath: chrome.runtime.getURL("lib/tesseract/worker.min.js"),
-      corePath: chrome.runtime.getURL("lib/tesseract-core/"),
       workerBlobURL: false,
       logger: updateProgress,
     })

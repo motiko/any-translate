@@ -1,4 +1,5 @@
 const path = require("path");
+const fs = require("fs");
 const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
@@ -10,8 +11,12 @@ const outputDir = path.join(__dirname, "dist");
 
 // The Chrome Web Store rejects MV3 packages that mention remotely hosted code,
 // even as unused fallbacks. Language data (@tesseract.js-data) is not code.
-const REMOTE_CODE = /cdn\.jsdelivr\.net\/npm\/tesseract\.js(-core)?@/;
+// importScripts with a computed URL is also flagged, so ban the call entirely.
+const REMOTE_CODE = /cdn\.jsdelivr\.net\/npm\/tesseract\.js(-core)?@|importScripts\s*\(/;
 const CORE_CDN = "https://cdn.jsdelivr.net/npm/tesseract.js-core@v";
+const CORE_IMPORT = "r.g.importScripts(h),";
+// OEM 1 (LSTM) is hardcoded and every MV3 Chrome supports wasm SIMD.
+const CORE_PATH = path.join(__dirname, "node_modules", "tesseract.js-core", "tesseract-core-simd-lstm.wasm.js");
 
 class NoRemoteCodePlugin {
   apply(compiler) {
@@ -50,6 +55,10 @@ module.exports = {
       /\/worker\/browser\/defaultOptions(\.js)?$/,
       path.join(inputDir, "tesseract-options.js")
     ),
+    new webpack.NormalModuleReplacementPlugin(
+      /\/worker\/browser\/spawnWorker(\.js)?$/,
+      path.join(inputDir, "tesseract-spawn-worker.js")
+    ),
     new NoRemoteCodePlugin(),
     new WebpackExtensionManifestPlugin({
       config: {
@@ -70,16 +79,17 @@ module.exports = {
         {
           from: path.join(__dirname, "node_modules", "tesseract.js", "dist", "worker.min.js"),
           to: path.join(outputDir, "lib", "tesseract"),
-          // corePath is always passed, so drop the jsDelivr fallback.
+          // Prepend the core so it defines self.TesseractCore before the worker
+          // runs, and drop the worker's importScripts(corePath) and jsDelivr
+          // fallback: the store rejects importScripts with a computed URL.
           transform: (content) => {
-            const source = content.toString();
-            if (!source.includes(CORE_CDN)) throw new Error(`${CORE_CDN} not found in worker.min.js`);
-            return source.replaceAll(CORE_CDN, "");
+            let source = content.toString();
+            for (const needle of [CORE_CDN, CORE_IMPORT]) {
+              if (!source.includes(needle)) throw new Error(`${needle} not found in worker.min.js`);
+              source = source.replaceAll(needle, "");
+            }
+            return fs.readFileSync(CORE_PATH, "utf8") + "\n" + source;
           },
-        },
-        {
-          from: path.join(__dirname, "node_modules", "tesseract.js-core", "tesseract-core*-lstm.wasm.js"),
-          to: path.join(outputDir, "lib", "tesseract-core", "[name][ext]"),
         },
       ],
     }),
