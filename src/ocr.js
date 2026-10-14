@@ -3,6 +3,10 @@ import { DEFAULTS } from "./defaults";
 
 let origin;
 
+// Official LSTM-only "fast" models, uncompressed. Not a package CDN: the store
+// flags any cdn.jsdelivr.net URL, even for data (see webpack.config.js).
+const LANG_PATH = "https://raw.githubusercontent.com/tesseract-ocr/tessdata_fast/main";
+
 const updateProgress = (m) => {
   if (m.status !== "recognizing text") return;
   const progress = m.progress === 0 ? 30 : Math.round(m.progress * 100);
@@ -23,6 +27,8 @@ const workerPromise = chrome.storage.sync
     createWorker(ocrLang, 1, {
       workerPath: chrome.runtime.getURL("lib/tesseract/worker.min.js"),
       workerBlobURL: false,
+      langPath: LANG_PATH,
+      gzip: false,
       logger: updateProgress,
     })
   );

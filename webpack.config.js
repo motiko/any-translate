@@ -9,11 +9,13 @@ const TerserPlugin = require("terser-webpack-plugin");
 const inputDir = path.join(__dirname, "src");
 const outputDir = path.join(__dirname, "dist");
 
-// The Chrome Web Store rejects MV3 packages that mention remotely hosted code,
-// even as unused fallbacks. Language data (@tesseract.js-data) is not code.
-// importScripts with a computed URL is also flagged, so ban the call entirely.
-const REMOTE_CODE = /cdn\.jsdelivr\.net\/npm\/tesseract\.js(-core)?@|importScripts\s*\(/;
+// The Chrome Web Store rejects MV3 packages that mention a package CDN, even as
+// unused fallbacks and even for language data (v0.3.2 was removed for the
+// @tesseract.js-data langPath). importScripts with a computed URL is also
+// flagged, so ban the call entirely.
+const REMOTE_CODE = /cdn\.jsdelivr\.net|unpkg\.com|importScripts\s*\(/;
 const CORE_CDN = "https://cdn.jsdelivr.net/npm/tesseract.js-core@v";
+const LANG_CDN = 's||"https://cdn.jsdelivr.net/npm/@tesseract.js-data/".concat(i,m?"/4.0.0_best_int":"/4.0.0")';
 const CORE_IMPORT = "r.g.importScripts(h),";
 // OEM 1 (LSTM) is hardcoded and every MV3 Chrome supports wasm SIMD.
 const CORE_PATH = path.join(__dirname, "node_modules", "tesseract.js-core", "tesseract-core-simd-lstm.wasm.js");
@@ -80,13 +82,13 @@ module.exports = {
           from: path.join(__dirname, "node_modules", "tesseract.js", "dist", "worker.min.js"),
           to: path.join(outputDir, "lib", "tesseract"),
           // Prepend the core so it defines self.TesseractCore before the worker
-          // runs, and drop the worker's importScripts(corePath) and jsDelivr
-          // fallback: the store rejects importScripts with a computed URL.
+          // runs, and drop the worker's importScripts(corePath) and the jsDelivr
+          // corePath and langPath fallbacks (ocr.js always passes langPath).
           transform: (content) => {
             let source = content.toString();
-            for (const needle of [CORE_CDN, CORE_IMPORT]) {
+            for (const [needle, replacement] of [[CORE_CDN, ""], [CORE_IMPORT, ""], [LANG_CDN, "s"]]) {
               if (!source.includes(needle)) throw new Error(`${needle} not found in worker.min.js`);
-              source = source.replaceAll(needle, "");
+              source = source.replaceAll(needle, replacement);
             }
             return fs.readFileSync(CORE_PATH, "utf8") + "\n" + source;
           },
